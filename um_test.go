@@ -16,19 +16,15 @@ func TestParsesSingleCard(t *testing.T) {
 }
 
 func TestParsesMultiple(t *testing.T) {
-	cards := parse("7red", "5blue", "3yellow")
+	cards := parse("7red", "drawTwoRed")
 	expected := []*Card{
 		&Card{
 			Color: Red,
 			Value: Seven,
 		},
 		&Card{
-			Color: Blue,
-			Value: Five,
-		},
-		&Card{
-			Color: Yellow,
-			Value: Three,
+			Color: Red,
+			Value: DrawTwo,
 		},
 	}
 

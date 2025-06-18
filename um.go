@@ -77,19 +77,35 @@ type Strategy interface {
 type OffensiveStrategy struct{}
 
 func (OffensiveStrategy) Choose(topCard *Card, hand []*Card) *Card {
-	// todo:
-	fmt.Println("Offensive")
+	for _, i := range hand {
+		fmt.Println(i.Color)
+	}
+	if c, match := colorMatch(topCard, hand); match {
+		return c
+	}
 	return &Card{
 		Color: Red,
 		Value: Seven,
 	}
 }
 
+func colorMatch(card *Card, cards []*Card) (*Card, bool) {
+	for _, c := range cards {
+		if card.Color == c.Color {
+			return c, true
+		}
+	}
+	return nil, false
+}
+
 type DefensiveStrategy struct{}
 
 func (DefensiveStrategy) Choose(topCard *Card, hand []*Card) *Card {
 	// todo:
-	fmt.Println("Defensive")
+	// 1. Play duplicated card
+	// 2. Play wild card
+	// wild cards last
+	// play a duplicated card
 	return &Card{
 		Color: Blue,
 		Value: Eight,
@@ -108,7 +124,8 @@ func parse(cards ...string) []*Card {
 			remaining := strings.Replace(card, key, "", 1)
 			remaining = strings.TrimSpace(remaining)
 			v = strToValue[key]
-			c = strToColor[remaining]
+			c = strToColor[strings.ToLower(remaining)]
+			fmt.Println(c)
 		}
 		buf = append(
 			buf,
@@ -147,8 +164,11 @@ func main() {
 
 	cards := parse(os.Args[1:]...)
 
-	offStrat.Choose(cards[1], cards[2:])
-	defStrat.Choose(cards[1], cards[2:])
+	oc := offStrat.Choose(cards[0], cards[1:])
+	dc := defStrat.Choose(cards[0], cards[1:])
+
+	fmt.Printf("Offesnively -> Play '%s %s'\n", oc.Color, oc.Value)
+	fmt.Printf("Defensively -> Play '%s %s'\n", dc.Color, dc.Value)
 }
 
 func help() {

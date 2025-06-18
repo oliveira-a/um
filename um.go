@@ -71,7 +71,29 @@ var strToValue = map[string]Value{
 }
 
 type Strategy interface {
-	Choose(hand []Card, topCard Card) *Card
+	Choose(topCard *Card, hand []*Card) *Card
+}
+
+type OffensiveStrategy struct{}
+
+func (OffensiveStrategy) Choose(topCard *Card, hand []*Card) *Card {
+	// todo:
+	fmt.Println("Offensive")
+	return &Card{
+		Color: Red,
+		Value: Seven,
+	}
+}
+
+type DefensiveStrategy struct{}
+
+func (DefensiveStrategy) Choose(topCard *Card, hand []*Card) *Card {
+	// todo:
+	fmt.Println("Defensive")
+	return &Card{
+		Color: Blue,
+		Value: Eight,
+	}
 }
 
 func parse(cards ...string) []*Card {
@@ -120,10 +142,13 @@ func main() {
 		os.Exit(0)
 	}
 
+	offStrat := &OffensiveStrategy{}
+	defStrat := &DefensiveStrategy{}
+
 	cards := parse(os.Args[1:]...)
-	for _, c := range cards {
-		fmt.Println(c)
-	}
+
+	offStrat.Choose(cards[1], cards[2:])
+	defStrat.Choose(cards[1], cards[2:])
 }
 
 func help() {

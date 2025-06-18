@@ -58,6 +58,16 @@ var strToValue = map[string]Value{
 	"skip":     Skip,
 	"reverse":  Reverse,
 	"wildCard": WildCard,
+
+	"1": One,
+	"2": Two,
+	"3": Three,
+	"4": Four,
+	"5": Five,
+	"6": Six,
+	"7": Seven,
+	"8": Eight,
+	"9": Nine,
 }
 
 type Strategy interface {
@@ -65,15 +75,14 @@ type Strategy interface {
 }
 
 func parse(cards ...string) []*Card {
-	buf := make([]*Card, len(cards))
+	var buf []*Card
 	for _, card := range cards {
 		var v Value
 		var c Color
 		if isDigit(card[0]) {
 			v = strToValue[string(card[0])]
 			c = strToColor[card[1:]]
-		}
-		if match, key := isSpecial(card); match {
+		} else if match, key := isSpecial(card); match {
 			remaining := strings.Replace(card, key, "", 1)
 			remaining = strings.TrimSpace(remaining)
 			v = strToValue[key]
@@ -91,6 +100,7 @@ func parse(cards ...string) []*Card {
 	return buf
 }
 
+// todo: rename this to something better
 func isSpecial(s string) (bool, string) {
 	for key := range strToValue {
 		if strings.Contains(s, key) {
@@ -110,7 +120,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	cards := parse(os.Args[1])
+	cards := parse(os.Args[1:]...)
 	for _, c := range cards {
 		fmt.Println(c)
 	}

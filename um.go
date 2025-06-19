@@ -71,45 +71,40 @@ var strToValue = map[string]Value{
 }
 
 type Strategy interface {
-	Choose(topCard *Card, hand []*Card) *Card
+	Choose(topCard *Card, hand []*Card) []*Card
 }
 
 type OffensiveStrategy struct{}
 
-func (OffensiveStrategy) Choose(topCard *Card, hand []*Card) *Card {
-	for _, i := range hand {
-		fmt.Println(i.Color)
-	}
-	if c, match := colorMatch(topCard, hand); match {
-		return c
-	}
-	return &Card{
-		Color: Red,
-		Value: Seven,
-	}
-}
-
-func colorMatch(card *Card, cards []*Card) (*Card, bool) {
-	for _, c := range cards {
-		if card.Color == c.Color {
-			return c, true
+func (OffensiveStrategy) Choose(topCard *Card, hand []*Card) []*Card {
+	var cards []*Card
+	if colorMatched := colorMatch(topCard, hand); len(colorMatched) > 0 {
+		for _, cm := range colorMatched {
+			for _, c := range hand {
+				if cm.Value == c.Value {
+					cards = append(cards, c)
+				}
+			}
 		}
 	}
-	return nil, false
+	return cards
+}
+
+func colorMatch(card *Card, cards []*Card) []*Card {
+	var buf []*Card
+	for _, c := range cards {
+		if card.Color == c.Color {
+			buf = append(buf, c)
+		}
+	}
+	return buf
 }
 
 type DefensiveStrategy struct{}
 
-func (DefensiveStrategy) Choose(topCard *Card, hand []*Card) *Card {
-	// todo:
-	// 1. Play duplicated card
-	// 2. Play wild card
-	// wild cards last
-	// play a duplicated card
-	return &Card{
-		Color: Blue,
-		Value: Eight,
-	}
+func (DefensiveStrategy) Choose(topCard *Card, hand []*Card) []*Card {
+	var buf []*Card
+	return buf
 }
 
 func parse(cards ...string) []*Card {
@@ -125,7 +120,6 @@ func parse(cards ...string) []*Card {
 			remaining = strings.TrimSpace(remaining)
 			v = strToValue[key]
 			c = strToColor[strings.ToLower(remaining)]
-			fmt.Println(c)
 		}
 		buf = append(
 			buf,
@@ -167,8 +161,15 @@ func main() {
 	oc := offStrat.Choose(cards[0], cards[1:])
 	dc := defStrat.Choose(cards[0], cards[1:])
 
-	fmt.Printf("Offesnively -> Play '%s %s'\n", oc.Color, oc.Value)
-	fmt.Printf("Defensively -> Play '%s %s'\n", dc.Color, dc.Value)
+	fmt.Printf("Offensively play: ")
+	for _, c := range oc {
+		fmt.Printf("%s %s ", c.Color, c.Value)
+	}
+	fmt.Println("")
+	fmt.Printf("Defensively play: ")
+	for _, c := range dc {
+		fmt.Printf("%s %s ", c.Color, c.Value)
+	}
 }
 
 func help() {
